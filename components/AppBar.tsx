@@ -1,10 +1,14 @@
 import { FC } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, TouchableHighlight } from 'react-native';
 
 const AppBar: FC = () => {
     return (
       <View style={styles.root}>
         <Text style={styles.title}>TodoPlusGPT</Text>
+
+        <TouchableHighlight style={styles.button}>
+          <Text style={styles.buttonText}>Generate from Goal</Text>
+        </TouchableHighlight>
       </View>
     )
 }
@@ -17,7 +21,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
 
     display: 'flex',
-    justifyContent: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center'
   },
 
@@ -25,12 +30,24 @@ const styles = StyleSheet.create({
     color: '#222',
     fontSize: 16,
     fontWeight: '500',
-    
-    alignSelf: 'flex-start',
+
     borderColor: '#222',
-    borderBottomWidth: 2,
-    paddingVertical: 10,
-    paddingHorizontal: 12
+    borderLeftWidth: 3,
+    paddingVertical: 5,
+    paddingLeft: 10,
+    marginLeft: 7
+  },
+
+  button: {
+    padding: 10,
+    backgroundColor: '#222',
+    borderWidth: 2,
+    borderRadius: 5
+  },
+
+  buttonText: {
+    color: '#eee',
+    fontWeight: 'bold'
   }
 });
 

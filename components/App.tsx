@@ -8,6 +8,11 @@ import Calendar from './Calendar';
 import AppBar from './AppBar';
 import TodoList from './TodoList';
 
+const enum Pages {
+  Calendar,
+  TodoList
+}
+
 const App: FC = () => {
   const [ todos, setTodos ] = useState<TodoDictionary>({
     '1683128600': [
@@ -19,7 +24,7 @@ const App: FC = () => {
     ]
   });
   const  [ baseTimestamp, setBaseTimestamp ] = useState<number>( getUnixTime(new Date()) );
-  const [ isTodoListOpen, setIsTodoListOpen ] = useState<boolean>(false);
+  const [ currentPage, setCurrentPage ] = useState<Pages>(Pages.Calendar);
 
   const baseDate = fromUnixTime(baseTimestamp);
 
@@ -33,7 +38,7 @@ const App: FC = () => {
     if (!copyTodos[key]) copyTodos[key] = [];
     copyTodos[key].push({ content: '', done: false }) 
     setTodos(copyTodos);
-    setIsTodoListOpen(true);
+    setCurrentPage(Pages.TodoList);
   }
 
   const onAction = (key: string, index: number | null, action: "add" | "edit" | "delete", entry: TodoEntry | null) => {
@@ -61,12 +66,12 @@ const App: FC = () => {
   }
 
   const onClose = () => {
-    setIsTodoListOpen(false);
+    setCurrentPage(Pages.Calendar);
   }
 
   // cleanup function here
   useEffect(() => {
-    if (!isTodoListOpen) {
+    if (currentPage !== Pages.TodoList) {
       const copyTodos = copy(todos);
 
       for (const key in copyTodos) {
@@ -76,17 +81,14 @@ const App: FC = () => {
       }
       setTodos(copyTodos);
     }
-  }, [isTodoListOpen]);
+  }, [currentPage]);
 
 
   return (
     <ScrollView style={{ backgroundColor: '#fff' }}>
         <AppBar />
-        { 
-          isTodoListOpen ? 
-          <TodoList todos={todos} onAction={onAction} onClose={onClose}/> : 
-          <Calendar baseDate={baseDate} onMonthChange={onMonthChange} onDatePress={onDatePress} /> 
-        }
+        { currentPage === Pages.Calendar && <Calendar baseDate={baseDate} onMonthChange={onMonthChange} onDatePress={onDatePress} /> }
+        { currentPage === Pages.TodoList && <TodoList todos={todos} onAction={onAction} onClose={onClose}/> }
     </ScrollView>
   );
 }
