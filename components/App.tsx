@@ -10,7 +10,8 @@ import TodoList from './TodoList';
 
 const enum Pages {
   Calendar,
-  TodoList
+  TodoList,
+  PromptWindow
 }
 
 const App: FC = () => {
