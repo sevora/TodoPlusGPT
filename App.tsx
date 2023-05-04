@@ -8,13 +8,13 @@
 import React from 'react';
 import type {PropsWithChildren} from 'react';
 import {
-  SafeAreaView,
-  ScrollView,
+  SafeAreaSafeAreaView,
+  ScrollSafeAreaView,
   StatusBar,
   StyleSheet,
   Text,
   useColorScheme,
-  View,
+  SafeAreaView,
 } from 'react-native';
 
 import {
@@ -32,7 +32,7 @@ type SectionProps = PropsWithChildren<{
 function Section({children, title}: SectionProps): JSX.Element {
   const isDarkMode = useColorScheme() === 'dark';
   return (
-    <View style={styles.sectionContainer}>
+    <SafeAreaView style={styles.sectionContainer}>
       <Text
         style={[
           styles.sectionTitle,
@@ -51,7 +51,7 @@ function Section({children, title}: SectionProps): JSX.Element {
         ]}>
         {children}
       </Text>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -63,16 +63,16 @@ function App(): JSX.Element {
   };
 
   return (
-    <SafeAreaView style={backgroundStyle}>
+    <SafeAreaSafeAreaView style={backgroundStyle}>
       <StatusBar
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={backgroundStyle.backgroundColor}
       />
-      <ScrollView
+      <ScrollSafeAreaView
         contentInsetAdjustmentBehavior="automatic"
         style={backgroundStyle}>
         <Header />
-        <View
+        <SafeAreaView
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
           }}>
@@ -90,9 +90,9 @@ function App(): JSX.Element {
             Read the docs to discover what to do next:
           </Section>
           <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+        </SafeAreaView>
+      </ScrollSafeAreaView>
+    </SafeAreaSafeAreaView>
   );
 }
 

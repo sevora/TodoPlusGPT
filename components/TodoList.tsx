@@ -1,5 +1,5 @@
 import { FC, useEffect } from 'react';
-import { BackHandler, Image, StyleSheet, View, GestureResponderEvent, Text, TextInput, TouchableHighlight } from 'react-native';
+import { BackHandler, Image, StyleSheet, SafeAreaView, Text, TextInput, TouchableHighlight } from 'react-native';
 import { fromUnixTime, format } from 'date-fns';
 
 import { TodoDictionary, TodoEntry } from './shared.types';
@@ -28,19 +28,19 @@ const TodoList: FC<TodoListProps> = ({ todos={}, onAction, onClose }) => {
   }, []);
 
   return (
-    <View style={styles.todoListContainer}>
+    <SafeAreaView style={styles.todoListContainer}>
       { sortedTodoKeys.map(key => {
         let date = fromUnixTime( Number(key) );
 
-        const onAdd = () => {
+        const handleAdd = () => {
           onAction && onAction(key, null, "add", { content: '', done: false } as TodoEntry);
         }
 
-        const onEdit = (index: number, content: string, done: boolean) => {
+        const handleEdit = (index: number, content: string, done: boolean) => {
           onAction && onAction(key, index, "edit", { content, done } as TodoEntry);
         }
 
-        const onDelete = (index: number) => {
+        const handleDelete = (index: number) => {
           onAction && onAction(key, index, "delete", null);
         }
 
@@ -49,13 +49,13 @@ const TodoList: FC<TodoListProps> = ({ todos={}, onAction, onClose }) => {
             key={key} 
             date={date} 
             entries={todos[key]}
-            onAdd={onAdd}
-            onEdit={onEdit}
-            onDelete={onDelete}
+            onAdd={handleAdd}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
           />
         )
       }) }
-    </View>
+    </SafeAreaView>
   )
 }
 
@@ -70,16 +70,16 @@ export interface TodoGroupProps {
 
 const TodoGroup: FC<TodoGroupProps> = ({ date, entries, onAdd, onEdit, onDelete }) => {
   return (
-    <View style={styles.todoGroupContainer}>
+    <SafeAreaView style={styles.todoGroupContainer}>
       <TodoHeader date={date} onAdd={onAdd} />
-      <View style={styles.todoGroupItemContainer}>
+      <SafeAreaView style={styles.todoGroupItemContainer}>
         { entries.map((entry, index) => {
 
-          const onEditItem = (content: string, done: boolean) => {
+          const handleEditItem = (content: string, done: boolean) => {
             onEdit && onEdit(index, content, done);
           }
 
-          const onDeleteItem = () => {
+          const handleDeleteItem = () => {
             onDelete && onDelete(index);
           }
 
@@ -88,13 +88,13 @@ const TodoGroup: FC<TodoGroupProps> = ({ date, entries, onAdd, onEdit, onDelete 
               key={index}
               content={entry.content}
               done={entry.done}
-              onEdit={onEditItem}
-              onDelete={onDeleteItem}
+              onEdit={handleEditItem}
+              onDelete={handleDeleteItem}
             />
           )
         } )}
-      </View>
-    </View>
+      </SafeAreaView>
+    </SafeAreaView>
   )
 }
 
@@ -105,13 +105,13 @@ export interface TodoHeaderProps {
 
 const TodoHeader: FC<TodoHeaderProps> = ({ date, onAdd }) => {
   return (
-    <View style={styles.todoHeaderContainer}>
+    <SafeAreaView style={styles.todoHeaderContainer}>
       <Text style={styles.todoHeaderText}>{ format(date, 'MMMM dd, yyyy') }</Text>
 
       <TouchableHighlight onPress={onAdd} underlayColor='#eee'>
         <Image source={require('./../assets/icons/add.png')} style={{ height: 20, width: 20, opacity: 0.5 }} resizeMode='contain'/>
       </TouchableHighlight>
-    </View>
+    </SafeAreaView>
   )
 }
 
@@ -135,14 +135,14 @@ const TodoItem: FC<TodoItemProps> = ({ content, done, onEdit, onDelete }) => {
   }
 
   return (
-    <View style={containerStyle}>
+    <SafeAreaView style={containerStyle}>
       
       <TouchableHighlight onPress={onEdit ? () => onEdit(content, !done) : undefined} underlayColor='#eee'>
         <Image source={done ? filledCheckbox : emptyCheckbox} style={{ height: 20, width: 20, opacity: done ? 0.1 : 0.5 }} resizeMode='contain'/>
       </TouchableHighlight>
 
-      <TextInput placeholder='Enter your task here...' multiline={true} style={textStyle} value={content} onChangeText={onEdit && !done ? (text) => onEdit(text, done) : undefined}/>
-    </View>
+      <TextInput placeholder='Enter your task here...' autoComplete='off' multiline={true} style={textStyle} value={content} onChangeText={onEdit && !done ? (text) => onEdit(text, done) : undefined}/>
+    </SafeAreaView>
   )
 }
 

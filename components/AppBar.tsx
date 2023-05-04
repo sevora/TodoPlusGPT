@@ -1,15 +1,22 @@
 import { FC } from 'react';
-import { StyleSheet, Text, View, TouchableHighlight } from 'react-native';
+import { StyleSheet, Text, SafeAreaView, TouchableHighlight, GestureResponderEvent } from 'react-native';
 
-const AppBar: FC = () => {
+export interface AppBarProps {
+  showButton?: boolean;
+  onPressButton?: (event: GestureResponderEvent) => void;
+}
+
+const AppBar: FC<AppBarProps> = ({ showButton, onPressButton }) => {
     return (
-      <View style={styles.root}>
+      <SafeAreaView style={styles.root}>
         <Text style={styles.title}>TodoPlusGPT</Text>
 
-        <TouchableHighlight style={styles.button}>
-          <Text style={styles.buttonText}>Generate from Goal</Text>
-        </TouchableHighlight>
-      </View>
+        { showButton && (
+          <TouchableHighlight style={styles.button} onPress={onPressButton}>
+            <Text style={styles.buttonText}>Generate from Goal</Text>
+          </TouchableHighlight>
+        ) }
+      </SafeAreaView>
     )
 }
 

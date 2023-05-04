@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { StyleSheet, Text, View, FlatList, ListRenderItemInfo, TouchableHighlight, Image, GestureResponderEvent } from 'react-native';
+import { StyleSheet, Text, SafeAreaView, FlatList, ListRenderItemInfo, TouchableHighlight, Image, GestureResponderEvent } from 'react-native';
 import { addDays, isSameDay } from 'date-fns';
 
 export const DAYS_OF_WEEK = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ];
@@ -28,9 +28,9 @@ const Calendar: FC<CalendarProps> = ({ currentDate=new Date(), baseDate=new Date
   
   const renderDaysOfWeek = (data: ListRenderItemInfo<string>) => {
     return (
-      <View style={{ ...styles.gridItem, ...styles.daysOfWeekCell }}>
+      <SafeAreaView style={{ ...styles.gridItem, ...styles.daysOfWeekCell }}>
         <Text style={styles.daysOfWeekText}>{data.item.slice(0,3)}</Text>
-      </View>
+      </SafeAreaView>
     )
   }
 
@@ -58,8 +58,8 @@ const Calendar: FC<CalendarProps> = ({ currentDate=new Date(), baseDate=new Date
   }
 
   return (
-    <View style={styles.root}>
-      <View style={styles.topBar}>
+    <SafeAreaView style={styles.root}>
+      <SafeAreaView style={styles.topBar}>
         
         <TouchableHighlight style={styles.button} underlayColor='#ccc' onPress={onMonthChange ? (event) => onMonthChange(event, -1) : undefined}>
           <Image source={require('./../assets/icons/back.png')} style={{ height: 20, width: 20 }} resizeMode='contain'/>
@@ -73,8 +73,8 @@ const Calendar: FC<CalendarProps> = ({ currentDate=new Date(), baseDate=new Date
         <TouchableHighlight style={styles.button} underlayColor='#ccc' onPress={onMonthChange ? (event) => onMonthChange(event, 1) : undefined}>
           <Image source={require('./../assets/icons/next.png')} style={{ height: 20, width: 20 }} resizeMode='contain'/>
         </TouchableHighlight>
-      </View>
-      <View>
+      </SafeAreaView>
+      <SafeAreaView>
         <FlatList 
           scrollEnabled={false}
           numColumns={7}
@@ -88,8 +88,8 @@ const Calendar: FC<CalendarProps> = ({ currentDate=new Date(), baseDate=new Date
           data={getCalendarDays(baseDate.getUTCMonth(), baseDate.getUTCFullYear(), 7*6)}
           renderItem={renderDays}
         />
-      </View>
-    </View>
+      </SafeAreaView>
+    </SafeAreaView>
   );
 }
 
