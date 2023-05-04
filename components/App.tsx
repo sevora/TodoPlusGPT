@@ -12,12 +12,14 @@ import Calendar from './Calendar';
 import AppBar from './AppBar';
 import TodoList from './TodoList';
 import PromptWindow from './PromptWindow';
+import LoadingScreen from './LoadingScreen';
 
 const enum Pages {
   ApiKeyWindow,
   Calendar,
   TodoList,
-  PromptWindow
+  PromptWindow,
+  LoadingScreen
 }
 
 const App: FC = () => {
@@ -29,6 +31,7 @@ const App: FC = () => {
   const currentDate = new Date();
   const [ baseTimestamp, setBaseTimestamp ] = useState<number>( getUnixTime(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate())) );
   const [ currentPage, setCurrentPage ] = useState<Pages>(apiKey.length === 0 ? Pages.ApiKeyWindow : Pages.Calendar);
+  
   const baseDate = fromUnixTime(baseTimestamp);
 
   const handleApiKeySubmit = (key: string) => {
@@ -87,37 +90,68 @@ const App: FC = () => {
   }
 
   const handleSubmitPromptWindow = async(prompt: string, date: Date) => {
+    setCurrentPage(Pages.LoadingScreen);
+
     try {
       const response = await openai.createCompletion({
-        model: 'text-davinci-001',
-        prompt: `
-        I am a bot that provides steps to achieve the goal specified below in a strict format in JSON. The JSON has a result key which has a value of an array of each step. Each step has a key called "day" which has a value of a number specifying the day it should be done and another key called content with the value of a string outlining the step:
+        model: 'text-davinci-003',
+        prompt: `I am a bot that provides steps to achieve the goal specified below in a strict format in JSON. The result is an array of each step. Each step has a key called "day" which has a value of a number specifying the day it should be done. Another key is called "tasks" which is an array. That array is an of strings outlining the tasks for that day:
+        Goal: """
         ${prompt.trim()}
+        """
 
         Result:
         `.trim(),
         max_tokens: 1000,
-        temperature: 0.7,
-        top_p: 0.5
-        
+        temperature: 1.0
       });
-     
-      let result: { day: number, content: string }[] = JSON.parse(response.data.choices[0].text!);
+
+      console.log(response.data.choices[0].text);
+      let result: { day: number, tasks: string[] }[] = JSON.parse(response.data.choices[0].text!);
+      // console.log(result)
       // console.log(JSON.stringify(result, null, 2));
       // console.log(response.data.choices)
 
-      // let result: { day: number, content: string }[] = [
+      // [
       //   {
       //     "day": 1,
-      //     "content": "Do some basic stretches to limber up your body."
+      //     "steps": [
+      //       "Research different violin techniques and decide which one you would like to focus on.",
+      //       "Purchase a violin and necessary accessories.",
+      //       "Find a qualified violin teacher to help you learn the basics of playing the instrument."
+      //     ]
       //   },
       //   {
       //     "day": 2,
-      //     "content": "Do some cardio exercises to get your heart rate up."
+      //     "steps": [
+      //       "Practice playing the violin for at least one hour a day.",
+      //       "Listen to recordings of professional violinists and try to replicate their techniques.",
+      //       "Ask your teacher for advice and tips on how to improve your playing."
+      //     ]
       //   },
       //   {
       //     "day": 3,
-      //     "content": "Do some strength training exercises to tone your body."
+      //     "steps": [
+      //       "Continue to practice for at least one hour a day.",
+      //       "Attend concerts and master classes to learn from professional violinists.",
+      //       "Take part in competitions and performances to challenge yourself and gain experience."
+      //     ]
+      //   },
+      //   {
+      //     "day": 4,
+      //     "steps": [
+      //       "Continue to practice for at least one hour a day.",
+      //       "Learn new pieces of music and work on perfecting them.",
+      //       "Record yourself playing and listen back to evaluate your performance."
+      //     ]
+      //   },
+      //   {
+      //     "day": 5,
+      //     "steps": [
+      //       "Continue to practice for at least one hour a day.",
+      //       "Take lessons from different teachers to gain different perspectives.",
+      //       "Find a mentor who can help you reach your goals."
+      //     ]
       //   }
       // ]
 
@@ -127,13 +161,18 @@ const App: FC = () => {
         let offset = entry.day - 1;
         let key = getUnixTime( addDays(date, offset) );
         if (!copyTodos[key]) copyTodos[key] = [];
-        copyTodos[key].push({ content: entry.content, done: false } as TodoEntry);
+
+        for (let task of entry.tasks) {
+         copyTodos[key].push({ content: task, done: false } as TodoEntry);
+        }
       }
       setTodos(copyTodos);
       setCurrentPage(Pages.TodoList);
     } catch(error) {
       // add error handling such as toasts
       console.log(error)
+    } finally {
+      setCurrentPage(Pages.TodoList);
     }
   }
 
@@ -142,7 +181,8 @@ const App: FC = () => {
       [Pages.ApiKeyWindow]: <ApiKeyWindow onSubmit={handleApiKeySubmit} />,
       [Pages.Calendar]: <Calendar baseDate={baseDate} onMonthChange={handleMonthChangeCalendar} onDatePress={handleDatePressCalendar} />,
       [Pages.TodoList]: <TodoList todos={todos} onAction={handleActionTodo} onClose={handleCloseTodo}/>,
-      [Pages.PromptWindow]: <PromptWindow initialDate={baseDate} onClose={handleClosePromptWindow} onSubmit={handleSubmitPromptWindow} />
+      [Pages.PromptWindow]: <PromptWindow initialDate={baseDate} onClose={handleClosePromptWindow} onSubmit={handleSubmitPromptWindow} />,
+      [Pages.LoadingScreen]: <LoadingScreen />
     };
 
     return renders[page];
@@ -166,7 +206,7 @@ const App: FC = () => {
   return (
     <ScrollView style={{ backgroundColor: '#fff' }}>
       <SafeAreaView>
-        <AppBar showButton={currentPage !== Pages.PromptWindow && currentPage !== Pages.ApiKeyWindow} onPressButton={handlePressPromptWindow} />
+        <AppBar showButton={[ Pages.LoadingScreen, Pages.ApiKeyWindow, Pages.PromptWindow].indexOf(currentPage) === -1} onPressButton={handlePressPromptWindow} />
         { renderPage(currentPage) }
       </SafeAreaView>
     </ScrollView>
