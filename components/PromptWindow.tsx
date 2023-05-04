@@ -52,6 +52,7 @@ const PromptWindow: FC<PromptWindowProps> = ({ initialDate=new Date(), onSubmit,
     <SafeAreaView style={styles.root}>
       <Text style={styles.labelText}>Step 1. Describe your Goal</Text>
       <TextInput 
+        placeholderTextColor='#666'
         style={styles.textInputPrompt} 
         multiline={true} 
         maxLength={300}
@@ -100,6 +101,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#666',
     borderRadius: 5,
+    color: '#222',
     height: 200,
     textAlignVertical: 'top',
     marginBottom: 25
@@ -113,7 +115,8 @@ const styles = StyleSheet.create({
 
   valueText: {
     lineHeight: 25,
-    fontSize: 18
+    fontSize: 18,
+    color: '#222'
   },
 
   buttonContainer: {

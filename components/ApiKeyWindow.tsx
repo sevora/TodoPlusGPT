@@ -16,7 +16,7 @@ const ApiKeyWindow: FC<ApiKeyWindowProps> = ({ onSubmit }) => {
         must be used. The key is only saved locally on the device and is only used to 
         communicate with the API.
       </Text>
-      <TextInput placeholder='Enter your OpenAI key...' secureTextEntry style={styles.textInput} value={apiKey} onChangeText={setApiKey}></TextInput>
+      <TextInput placeholderTextColor='#666' placeholder='Enter your OpenAI key...' secureTextEntry style={styles.textInput} value={apiKey} onChangeText={setApiKey}></TextInput>
 
       <TouchableHighlight style={styles.submitButtonContainer} onPress={onSubmit ? () => onSubmit(apiKey.trim()) : undefined}>
         <Text style={styles.submitButtonText}>Save Credentials</Text>
@@ -49,6 +49,7 @@ const styles = StyleSheet.create({
     padding: 10,
     borderWidth: 1,
     borderColor: '#666',
+    color: '#222',
     borderRadius: 10,
   },
 

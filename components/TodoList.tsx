@@ -141,7 +141,7 @@ const TodoItem: FC<TodoItemProps> = ({ content, done, onEdit, onDelete }) => {
         <Image source={done ? filledCheckbox : emptyCheckbox} style={{ height: 20, width: 20, opacity: done ? 0.1 : 0.5 }} resizeMode='contain'/>
       </TouchableHighlight>
 
-      <TextInput placeholder='Enter your task here...' autoComplete='off' multiline={true} style={textStyle} value={content} onChangeText={onEdit && !done ? (text) => onEdit(text, done) : undefined}/>
+      <TextInput placeholder='Enter your task here...' placeholderTextColor='#666' autoComplete='off' multiline={true} style={textStyle} value={content} onChangeText={onEdit && !done ? (text) => onEdit(text, done) : undefined}/>
     </SafeAreaView>
   )
 }
