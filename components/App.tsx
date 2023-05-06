@@ -89,88 +89,80 @@ const App: FC = () => {
     setCurrentPage(Pages.Calendar);
   }
 
+  const createGoalPrompt = (goal: string) => {
+    return (
+      `Provide result in a strict JSON format given a text input. 
+      Extract the number of days specified, use "days" as the key and a number as value. 
+      Summarize the input, use "summary" as the key and the summary string as value.
+
+      Input: 
+      ${goal}
+        
+      Result:`
+    )
+  }
+
+  const createStepsPrompt = (goalSummary: string, previousStepSummary: string, day: number) => {
+    return (
+      `Provide result in a strict JSON format given several inputs. 
+      "Goal" specifies the goal and it must be used as context. 
+      "Previous Step" specifies a summary of the previous step and must be heavily taken into consideration.
+      "Day" specifies which day it is and it should be strictly remembered. 
+      The result should have a key "steps" where its value is an array of strings that are concise specifying steps for that day formulated using the given inputs. 
+      There should also be a "summary" key with the value being a string summarizing the "steps" generated.
+
+      Goal: ${goalSummary}
+      Previous Step: ${previousStepSummary}
+      Day: ${day}
+      
+      Result:`
+    )
+  }
+
   const handleSubmitPromptWindow = async(prompt: string, date: Date) => {
-    setCurrentPage(Pages.LoadingScreen);
+    setCurrentPage(Pages.LoadingScreen); // improve loading screen
 
     try {
-      const response = await openai.createCompletion({
+      const responseGoal = await openai.createCompletion({
         model: 'text-davinci-003',
-        prompt: `I am a bot that provides steps to achieve the goal specified below in a strict format in JSON. The result is an array of each step. Each step has a key called "day" which has a value of a number specifying the day it should be done. Another key is called "tasks" which is an array. That array is an of strings outlining the tasks for that day:
-        Goal: """
-        ${prompt.trim()}
-        """
-
-        Result:
-        `.trim(),
-        max_tokens: 1000,
+        prompt: createGoalPrompt( prompt.trim() ),
+        max_tokens: 700,
         temperature: 1.0
       });
 
-      console.log(response.data.choices[0].text);
-      let result: { day: number, tasks: string[] }[] = JSON.parse(response.data.choices[0].text!);
-      // console.log(result)
-      // console.log(JSON.stringify(result, null, 2));
-      // console.log(response.data.choices)
+      // console.log(response.data.choices[0].text);
+      const goal: { days: number, summary: string } = JSON.parse(responseGoal.data.choices[0].text!);
+      console.log(goal);
+      const days = Math.min(goal.days, 20); // capped at 20 days
 
-      // [
-      //   {
-      //     "day": 1,
-      //     "steps": [
-      //       "Research different violin techniques and decide which one you would like to focus on.",
-      //       "Purchase a violin and necessary accessories.",
-      //       "Find a qualified violin teacher to help you learn the basics of playing the instrument."
-      //     ]
-      //   },
-      //   {
-      //     "day": 2,
-      //     "steps": [
-      //       "Practice playing the violin for at least one hour a day.",
-      //       "Listen to recordings of professional violinists and try to replicate their techniques.",
-      //       "Ask your teacher for advice and tips on how to improve your playing."
-      //     ]
-      //   },
-      //   {
-      //     "day": 3,
-      //     "steps": [
-      //       "Continue to practice for at least one hour a day.",
-      //       "Attend concerts and master classes to learn from professional violinists.",
-      //       "Take part in competitions and performances to challenge yourself and gain experience."
-      //     ]
-      //   },
-      //   {
-      //     "day": 4,
-      //     "steps": [
-      //       "Continue to practice for at least one hour a day.",
-      //       "Learn new pieces of music and work on perfecting them.",
-      //       "Record yourself playing and listen back to evaluate your performance."
-      //     ]
-      //   },
-      //   {
-      //     "day": 5,
-      //     "steps": [
-      //       "Continue to practice for at least one hour a day.",
-      //       "Take lessons from different teachers to gain different perspectives.",
-      //       "Find a mentor who can help you reach your goals."
-      //     ]
-      //   }
-      // ]
-
+      let previousStepSummary: string = 'N/A';
       let copyTodos = copy(todos);
 
-      for (let entry of result) {  
-        let offset = entry.day - 1;
+      for (let offset = 0; offset < days; ++offset) {
         let key = getUnixTime( addDays(date, offset) );
         if (!copyTodos[key]) copyTodos[key] = [];
 
-        for (let task of entry.tasks) {
-         copyTodos[key].push({ content: task, done: false } as TodoEntry);
+        const responseStep = await openai.createCompletion({
+          model: 'text-davinci-003',
+          prompt: createStepsPrompt(goal.summary, previousStepSummary, offset + 1),
+          max_tokens: 1000,
+          temperature: 1.0  
+        });
+
+        const step: { steps: string[], summary: string } = JSON.parse(responseStep.data.choices[0].text!);
+        console.log(step);
+        previousStepSummary = step.summary;
+
+        for (let content of step.steps) {
+          copyTodos[key].push({ content, done: false } as TodoEntry);  
         }
       }
+
       setTodos(copyTodos);
       setCurrentPage(Pages.TodoList);
     } catch(error) {
       // add error handling such as toasts
-      console.log(error)
+      console.log(error);
     } finally {
       setCurrentPage(Pages.TodoList);
     }
