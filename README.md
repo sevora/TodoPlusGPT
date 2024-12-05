@@ -11,3 +11,6 @@ Provided are screenshots of what the application looks like.
 I'm not entirely sure how to set everything up since I last worked with this.
 - `npx react-native start`
 - `npx react-native start --reset-cache`
+
+## Contributing
+This project is open for improvements.
